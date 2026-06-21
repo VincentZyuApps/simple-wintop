@@ -25,7 +25,7 @@ pub fn render_tasks(tasks: &TasksData, width: usize) -> Vec<Span<'static>> {
 
     spans.push(Span::styled(
         "Tasks: ",
-        Style::default().fg(Color::DarkCyan),
+        Style::default().fg(Color::Cyan),
     ));
 
     spans.push(Span::styled(
@@ -35,7 +35,7 @@ pub fn render_tasks(tasks: &TasksData, width: usize) -> Vec<Span<'static>> {
             .add_modifier(Modifier::BOLD),
     ));
 
-    spans.push(Span::styled("; ", Style::default().fg(Color::DarkCyan)));
+    spans.push(Span::styled("; ", Style::default().fg(Color::Cyan)));
 
     spans.push(Span::styled(
         format!("{}", tasks.running),
@@ -59,7 +59,7 @@ pub fn render_uptime(uptime: &Duration, width: usize) -> Vec<Span<'static>> {
 
     spans.push(Span::styled(
         "Uptime: ",
-        Style::default().fg(Color::DarkCyan),
+        Style::default().fg(Color::Cyan),
     ));
 
     spans.push(Span::styled(
