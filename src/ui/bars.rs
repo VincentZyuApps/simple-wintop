@@ -3,6 +3,13 @@ use ratatui::text::Span;
 
 use crate::data::*;
 
+fn empty_char(fill: &EmptyFill) -> &'static str {
+    match fill {
+        EmptyFill::Space => " ",
+        EmptyFill::Dot => "·",
+    }
+}
+
 fn format_bytes(bytes: u64) -> String {
     const UNITS: &[&str] = &["B", "K", "M", "G", "T"];
     let mut value = bytes as f64;
@@ -22,7 +29,7 @@ fn format_bytes(bytes: u64) -> String {
     }
 }
 
-pub fn render_cpu_bar(cpu: &CpuData, width: usize) -> Vec<Span<'static>> {
+pub fn render_cpu_bar(cpu: &CpuData, width: usize, fill: &EmptyFill) -> Vec<Span<'static>> {
     let usage = cpu.usage.min(100.0);
     let text = format!("{:>5.1}%", usage);
 
@@ -41,21 +48,19 @@ pub fn render_cpu_bar(cpu: &CpuData, width: usize) -> Vec<Span<'static>> {
         let filled = (usage / 100.0 * body_w as f64).round() as usize;
         let filled = filled.min(body_w);
 
-        let green_end = (0.50 * body_w as f64).round() as usize;
-        let yellow_end = (0.80 * body_w as f64).round() as usize;
+        let green_end = (0.75 * body_w as f64).round() as usize;
+        let emp = empty_char(fill);
 
         for i in 0..body_w {
             if i < filled {
                 let color = if i < green_end {
                     Color::Green
-                } else if i < yellow_end {
-                    Color::Yellow
                 } else {
                     Color::Red
                 };
                 spans.push(Span::styled("|", Style::default().fg(color)));
             } else {
-                spans.push(Span::styled("·", Style::default().fg(Color::DarkGray)));
+                spans.push(Span::styled(emp, Style::default().fg(Color::DarkGray)));
             }
         }
     }
@@ -76,7 +81,7 @@ pub fn render_cpu_bar(cpu: &CpuData, width: usize) -> Vec<Span<'static>> {
     spans
 }
 
-pub fn render_mem_bar(mem: &MemoryData, width: usize) -> Vec<Span<'static>> {
+pub fn render_mem_bar(mem: &MemoryData, width: usize, fill: &EmptyFill) -> Vec<Span<'static>> {
     let text = format!("{}/{}", format_bytes(mem.used), format_bytes(mem.total));
     let label = "Mem";
     let label_style = Style::default()
@@ -106,6 +111,7 @@ pub fn render_mem_bar(mem: &MemoryData, width: usize) -> Vec<Span<'static>> {
     if body_w > 0 {
         let filled = (ratio * body_w as f64).round() as usize;
         let filled = filled.min(body_w);
+        let emp = empty_char(fill);
 
         for i in 0..body_w {
             if i < filled {
@@ -119,7 +125,7 @@ pub fn render_mem_bar(mem: &MemoryData, width: usize) -> Vec<Span<'static>> {
                 };
                 spans.push(Span::styled("|", Style::default().fg(color)));
             } else {
-                spans.push(Span::styled("·", Style::default().fg(Color::DarkGray)));
+                spans.push(Span::styled(emp, Style::default().fg(Color::DarkGray)));
             }
         }
     }
@@ -132,7 +138,7 @@ pub fn render_mem_bar(mem: &MemoryData, width: usize) -> Vec<Span<'static>> {
     spans
 }
 
-pub fn render_swap_bar(swp: &SwapData, width: usize) -> Vec<Span<'static>> {
+pub fn render_swap_bar(swp: &SwapData, width: usize, fill: &EmptyFill) -> Vec<Span<'static>> {
     let text = format!("{}/{}", format_bytes(swp.used), format_bytes(swp.total));
     let label = "Swp";
     let label_style = Style::default()
@@ -162,6 +168,7 @@ pub fn render_swap_bar(swp: &SwapData, width: usize) -> Vec<Span<'static>> {
     if body_w > 0 {
         let filled = (ratio * body_w as f64).round() as usize;
         let filled = filled.min(body_w);
+        let emp = empty_char(fill);
 
         for i in 0..body_w {
             if i < filled {
@@ -175,7 +182,7 @@ pub fn render_swap_bar(swp: &SwapData, width: usize) -> Vec<Span<'static>> {
                 };
                 spans.push(Span::styled("|", Style::default().fg(color)));
             } else {
-                spans.push(Span::styled("·", Style::default().fg(Color::DarkGray)));
+                spans.push(Span::styled(emp, Style::default().fg(Color::DarkGray)));
             }
         }
     }

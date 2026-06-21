@@ -34,3 +34,15 @@ pub struct LoadAverageData {
     pub five: f64,
     pub fifteen: f64,
 }
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, clap::ValueEnum)]
+pub enum EmptyFill {
+    Space,
+    Dot,
+}
+
+impl Default for EmptyFill {
+    fn default() -> Self {
+        Self::Space
+    }
+}

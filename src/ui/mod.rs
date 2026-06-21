@@ -9,32 +9,41 @@ use ratatui::{
     Frame,
 };
 
-use crate::data::SystemData;
+use crate::data::{EmptyFill, SystemData};
 
-pub fn draw(frame: &mut Frame, data: &SystemData) {
+pub fn draw(frame: &mut Frame, data: &SystemData, empty_fill: &EmptyFill) {
     let area = frame.area();
 
-    if area.height < 10 || area.width < 60 {
+    if area.height < 12 || area.width < 60 {
         draw_too_small(frame, area);
         return;
     }
 
-    let horz = Layout::default()
-        .direction(Direction::Horizontal)
+    let outer = Layout::default()
+        .direction(Direction::Vertical)
         .constraints([
-            Constraint::Length(1),
-            Constraint::Min(20),
-            Constraint::Length(6),
-            Constraint::Min(20),
+            Constraint::Length(3),
+            Constraint::Min(6),
             Constraint::Length(1),
         ])
         .split(area);
 
-    draw_left_column(frame, horz[1], data);
-    draw_right_column(frame, horz[3], data);
+    let horz = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Length(3),
+            Constraint::Min(20),
+            Constraint::Length(6),
+            Constraint::Min(20),
+            Constraint::Length(3),
+        ])
+        .split(outer[1]);
+
+    draw_left_column(frame, horz[1], data, empty_fill);
+    draw_right_column(frame, horz[3], data, empty_fill);
 }
 
-fn draw_left_column(frame: &mut Frame, area: Rect, data: &SystemData) {
+fn draw_left_column(frame: &mut Frame, area: Rect, data: &SystemData, empty_fill: &EmptyFill) {
     let n_cpus = data.cpus.len();
     let n_left = (n_cpus + 1) / 2;
 
@@ -52,22 +61,22 @@ fn draw_left_column(frame: &mut Frame, area: Rect, data: &SystemData) {
         .split(area);
 
     for (i, cpu) in data.cpus.iter().take(n_left).enumerate() {
-        let spans = bars::render_cpu_bar(cpu, chunks[i].width as usize);
+        let spans = bars::render_cpu_bar(cpu, chunks[i].width as usize, empty_fill);
         frame.render_widget(Paragraph::new(Line::from(spans)), chunks[i]);
     }
 
     let off = n_left;
     frame.render_widget(
-        Paragraph::new(Line::from(bars::render_mem_bar(&data.memory, chunks[off].width as usize))),
+        Paragraph::new(Line::from(bars::render_mem_bar(&data.memory, chunks[off].width as usize, empty_fill))),
         chunks[off],
     );
     frame.render_widget(
-        Paragraph::new(Line::from(bars::render_swap_bar(&data.swap, chunks[off + 1].width as usize))),
+        Paragraph::new(Line::from(bars::render_swap_bar(&data.swap, chunks[off + 1].width as usize, empty_fill))),
         chunks[off + 1],
     );
 }
 
-fn draw_right_column(frame: &mut Frame, area: Rect, data: &SystemData) {
+fn draw_right_column(frame: &mut Frame, area: Rect, data: &SystemData, empty_fill: &EmptyFill) {
     let n_cpus = data.cpus.len();
     let n_right = n_cpus / 2;
     let n_left = (n_cpus + 1) / 2;
@@ -78,6 +87,7 @@ fn draw_right_column(frame: &mut Frame, area: Rect, data: &SystemData) {
     }
     rows.push(Constraint::Length(1));
     rows.push(Constraint::Length(1));
+    rows.push(Constraint::Length(1));
     rows.push(Constraint::Min(0));
 
     let chunks = Layout::default()
@@ -86,7 +96,7 @@ fn draw_right_column(frame: &mut Frame, area: Rect, data: &SystemData) {
         .split(area);
 
     for (i, cpu) in data.cpus.iter().skip(n_left).enumerate() {
-        let spans = bars::render_cpu_bar(cpu, chunks[i].width as usize);
+        let spans = bars::render_cpu_bar(cpu, chunks[i].width as usize, empty_fill);
         frame.render_widget(Paragraph::new(Line::from(spans)), chunks[i]);
     }
 

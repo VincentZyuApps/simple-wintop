@@ -9,12 +9,16 @@ use clap::Parser;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 
 use collector::Collector;
+use data::EmptyFill;
 
 #[derive(Parser)]
 #[command(name = "htop-rust-for-win", version = concat!("v", env!("CARGO_PKG_VERSION"), " (", env!("TARGET"), ")"))]
 struct Args {
     #[arg(short = 't', long = "interval", default_value = "1000")]
     interval: u64,
+
+    #[arg(long = "fill", value_enum, default_value = "space")]
+    empty_fill: EmptyFill,
 }
 
 fn main() -> io::Result<()> {
@@ -43,7 +47,7 @@ fn main() -> io::Result<()> {
 
         if last_tick.elapsed() >= tick_rate {
             let data = collector.collect();
-            terminal.draw(|frame| ui::draw(frame, &data))?;
+            terminal.draw(|frame| ui::draw(frame, &data, &args.empty_fill))?;
             last_tick = Instant::now();
         }
     }
