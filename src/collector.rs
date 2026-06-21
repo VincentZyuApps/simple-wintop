@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 use std::time::Duration;
 
-use sysinfo::System;
+use sysinfo::{CpuRefreshKind, ProcessRefreshKind, ProcessesToUpdate, System};
 
 use crate::data::*;
 
@@ -15,7 +15,7 @@ const MAX_HISTORY: usize = 900;
 impl Collector {
     pub fn new() -> Self {
         let mut system = System::new();
-        system.refresh_cpu_list();
+        system.refresh_cpu_list(CpuRefreshKind::everything());
         system.refresh_memory();
         Self {
             system,
@@ -26,8 +26,11 @@ impl Collector {
     pub fn collect(&mut self) -> SystemData {
         self.system.refresh_cpu_usage();
         self.system.refresh_memory();
-        self.system
-            .refresh_processes_specifics(sysinfo::ProcessRefreshKind::new());
+        self.system.refresh_processes_specifics(
+            ProcessesToUpdate::All,
+            true,
+            ProcessRefreshKind::new(),
+        );
 
         let cpus: Vec<CpuData> = self
             .system
@@ -40,7 +43,7 @@ impl Collector {
             })
             .collect();
 
-        let overall_usage: f64 = self.system.global_cpu_info().cpu_usage() as f64;
+        let overall_usage = self.system.global_cpu_usage() as f64;
         let num_cores = cpus.len() as f64;
         let load_value = if num_cores > 0.0 {
             overall_usage / 100.0 * num_cores
@@ -53,6 +56,14 @@ impl Collector {
             self.cpu_history.pop_back();
         }
 
+        let total_proc = self.system.processes().len() as u32;
+        let running_proc = self
+            .system
+            .processes()
+            .values()
+            .filter(|p| p.status() == sysinfo::ProcessStatus::Run)
+            .count() as u32;
+
         SystemData {
             cpus,
             memory: MemoryData {
@@ -64,15 +75,15 @@ impl Collector {
                 used: self.system.used_swap(),
             },
             tasks: TasksData {
-                total: self.system.total_process(),
-                running: self.system.running_process(),
+                total: total_proc,
+                running: running_proc,
             },
             load_avg: LoadAverageData {
                 one: self.average_over(60),
                 five: self.average_over(300),
                 fifteen: self.average_over(900),
             },
-            uptime: Duration::from_secs(self.system.uptime()),
+            uptime: Duration::from_secs(System::uptime()),
         }
     }
 
