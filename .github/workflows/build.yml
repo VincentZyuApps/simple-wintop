@@ -16,6 +16,7 @@ jobs:
     outputs:
       should_build: ${{ steps.flags.outputs.should_build }}
       should_release: ${{ steps.flags.outputs.should_release }}
+      should_publish: ${{ steps.flags.outputs.should_publish }}
       version: ${{ steps.flags.outputs.version }}
     steps:
       - name: Checkout
@@ -35,23 +36,38 @@ jobs:
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             echo "should_build=true"    >> "$GITHUB_OUTPUT"
             echo "should_release=false" >> "$GITHUB_OUTPUT"
+            echo "should_publish=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           BUILD=false
           RELEASE=false
+          PUBLISH=false
 
-          if echo "$MSG" | grep -qi "build release"; then
+          # "build publish" = 构建 + Release + 发布 Scoop（全套）
+          if echo "$MSG" | grep -qi "build publish"; then
             BUILD=true
             RELEASE=true
+            PUBLISH=true
+          # "build release" = 构建 + GitHub Release
+          elif echo "$MSG" | grep -qi "build release"; then
+            BUILD=true
+            RELEASE=true
+          # "build action" = 仅构建
           elif echo "$MSG" | grep -qi "build action"; then
             BUILD=true
           fi
 
+          # "publish from release" = 从已有 Release 更新 Scoop（不构建）
+          if echo "$MSG" | grep -qi "publish from release"; then
+            PUBLISH=true
+          fi
+
           echo "should_build=$BUILD"     >> "$GITHUB_OUTPUT"
           echo "should_release=$RELEASE" >> "$GITHUB_OUTPUT"
+          echo "should_publish=$PUBLISH" >> "$GITHUB_OUTPUT"
 
-          echo "📋 Flags: build=$BUILD release=$RELEASE"
+          echo "📋 Flags: build=$BUILD release=$RELEASE publish=$PUBLISH"
 
   build:
     name: Build ${{ matrix.name }}
@@ -150,3 +166,95 @@ jobs:
             --generate-notes \
             --latest \
             simple-wintop-*
+
+  publish-scoop-github:
+    name: Update Scoop Bucket
+    needs: [check, release]
+    if: always() && needs.check.outputs.should_publish == 'true' && (needs.release.result == 'success' || needs.release.result == 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch latest release info
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ needs.check.outputs.version }}"
+          REPO="${{ github.repository }}"
+          BASE_URL="https://github.com/${REPO}/releases/download/${VERSION}"
+
+          echo "📦 Target version: ${VERSION}"
+          echo "📥 Downloading Windows binaries from release..."
+
+          curl -fSL -o simple-wintop-x86_64.exe \
+            "${BASE_URL}/simple-wintop-x86_64-${VERSION}.exe"
+          curl -fSL -o simple-wintop-arm64.exe \
+            "${BASE_URL}/simple-wintop-arm64-${VERSION}.exe"
+
+          echo "✅ Downloaded:"
+          ls -lh simple-wintop-*.exe
+
+      - name: Generate Scoop manifest
+        run: |
+          VERSION="${{ needs.check.outputs.version }}"
+          SCOOP_VERSION="${VERSION#v}"
+          REPO="${{ github.repository }}"
+          BASE_URL="https://github.com/${REPO}/releases/download/${VERSION}"
+
+          HASH_X64=$(sha256sum simple-wintop-x86_64.exe | awk '{print $1}')
+          HASH_ARM64=$(sha256sum simple-wintop-arm64.exe | awk '{print $1}')
+
+          echo "📦 Version: $SCOOP_VERSION"
+          echo "🔑 x64 hash: $HASH_X64"
+          echo "🔑 arm64 hash: $HASH_ARM64"
+
+          cat > simple-wintop.json << EOF
+          {
+              "version": "${SCOOP_VERSION}",
+              "description": "htop-inspired Windows system monitor - CPU bars, Memory & Swap, Tasks, Uptime in a colorful TUI",
+              "homepage": "https://github.com/${REPO}",
+              "license": "MIT",
+              "architecture": {
+                  "64bit": {
+                      "url": "${BASE_URL}/simple-wintop-x86_64-${VERSION}.exe",
+                      "hash": "${HASH_X64}"
+                  },
+                  "arm64": {
+                      "url": "${BASE_URL}/simple-wintop-arm64-${VERSION}.exe",
+                      "hash": "${HASH_ARM64}"
+                  }
+              },
+              "checkver": {
+                  "github": "https://github.com/${REPO}"
+              },
+              "autoupdate": {
+                  "architecture": {
+                      "64bit": {
+                          "url": "https://github.com/${REPO}/releases/download/v\$version/simple-wintop-x86_64-v\$version.exe"
+                      },
+                      "arm64": {
+                          "url": "https://github.com/${REPO}/releases/download/v\$version/simple-wintop-arm64-v\$version.exe"
+                      }
+                  }
+              }
+          }
+          EOF
+
+          echo "📝 Generated simple-wintop.json:"
+          cat simple-wintop.json
+
+      - name: Push to scoop-bucket repo
+        env:
+          SCOOP_TOKEN: ${{ secrets.SCOOP_BUCKET_TOKEN }}
+        run: |
+          VERSION="${{ needs.check.outputs.version }}"
+
+          git clone https://x-access-token:${SCOOP_TOKEN}@github.com/VincentZyuApps/scoop-bucket.git scoop-repo
+          cp simple-wintop.json scoop-repo/bucket/simple-wintop.json
+
+          cd scoop-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add bucket/simple-wintop.json
+          git commit -m "🍺 Update simple-wintop to ${VERSION}" || echo "No changes to commit"
+          git push
+
+          echo "✅ Scoop bucket updated!"
