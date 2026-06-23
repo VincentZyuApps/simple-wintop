@@ -262,7 +262,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add bucket/simple-wintop.json
-          git commit -m "🍺 Update simple-wintop to ${VERSION}" || echo "No changes to commit"
+          git commit -m "ci:🍨 Update simple-wintop to ${VERSION}" || echo "No changes to commit"
           git push
 
           echo "✅ Scoop bucket updated!"
