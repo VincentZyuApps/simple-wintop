@@ -120,12 +120,14 @@ pub fn render_mem_bar(mem: &MemoryData, width: usize, fill: &EmptyFill) -> Vec<S
         for i in 0..body_w {
             if i < filled {
                 let pos = i as f64 / (body_w as f64);
-                let color = if pos < 0.5 {
+                let color = if pos < 0.25 {
                     Color::Green
-                } else if pos < 0.75 {
+                } else if pos < 0.5 {
                     Color::Blue
-                } else {
+                } else if pos < 0.75 {
                     Color::Yellow
+                } else {
+                    Color::Red
                 };
                 spans.push(Span::styled("|", Style::default().fg(color)));
             } else {
@@ -178,10 +180,12 @@ pub fn render_swap_bar(swp: &SwapData, width: usize, fill: &EmptyFill) -> Vec<Sp
         for i in 0..body_w {
             if i < filled {
                 let pos = i as f64 / (body_w as f64);
-                let color = if pos < 0.5 {
+                let color = if pos < 0.25 {
                     Color::Green
-                } else if pos < 0.75 {
+                } else if pos < 0.5 {
                     Color::Blue
+                } else if pos < 0.75 {
+                    Color::Yellow
                 } else {
                     Color::Red
                 };
