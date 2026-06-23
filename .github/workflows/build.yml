@@ -10,8 +10,9 @@ permissions:
   contents: write
 
 jobs:
+  # ── 判断是否需要构建 / 发布 ──────────────────────────────
   check:
-    name: Check commit message
+    name: Check Commit
     runs-on: ubuntu-latest
     outputs:
       should_build: ${{ steps.flags.outputs.should_build }}
@@ -69,8 +70,9 @@ jobs:
 
           echo "📋 Flags: build=$BUILD release=$RELEASE publish=$PUBLISH"
 
+  # ── 多平台构建 ───────────────────────────────────────────
   build:
-    name: Build ${{ matrix.name }}
+    name: Build Binary
     needs: check
     if: needs.check.outputs.should_build == 'true'
     runs-on: windows-latest
@@ -132,8 +134,9 @@ jobs:
           name: ${{ env.asset_name }}
           path: ${{ env.asset_name }}
 
+  # ── 发布到 GitHub Releases ─────────────────────────────
   release:
-    name: Publish Release
+    name: Release GitHub
     needs: [check, build]
     if: needs.check.outputs.should_release == 'true'
     runs-on: ubuntu-latest
@@ -167,6 +170,7 @@ jobs:
             --latest \
             simple-wintop-*
 
+  # ── 更新 Scoop Bucket ──────────────────────────────────────
   publish-scoop-github:
     name: Update Scoop Bucket
     needs: [check, release]
@@ -215,11 +219,13 @@ jobs:
               "architecture": {
                   "64bit": {
                       "url": "${BASE_URL}/simple-wintop-x86_64-${VERSION}.exe",
-                      "hash": "${HASH_X64}"
+                      "hash": "${HASH_X64}",
+                      "bin": [["simple-wintop-x86_64-${VERSION}.exe", "simple-wintop"]]
                   },
                   "arm64": {
                       "url": "${BASE_URL}/simple-wintop-arm64-${VERSION}.exe",
-                      "hash": "${HASH_ARM64}"
+                      "hash": "${HASH_ARM64}",
+                      "bin": [["simple-wintop-arm64-${VERSION}.exe", "simple-wintop"]]
                   }
               },
               "checkver": {
@@ -228,10 +234,12 @@ jobs:
               "autoupdate": {
                   "architecture": {
                       "64bit": {
-                          "url": "https://github.com/${REPO}/releases/download/v\$version/simple-wintop-x86_64-v\$version.exe"
+                          "url": "https://github.com/${REPO}/releases/download/v\$version/simple-wintop-x86_64-v\$version.exe",
+                          "bin": [["simple-wintop-x86_64-v\$version.exe", "simple-wintop"]]
                       },
                       "arm64": {
-                          "url": "https://github.com/${REPO}/releases/download/v\$version/simple-wintop-arm64-v\$version.exe"
+                          "url": "https://github.com/${REPO}/releases/download/v\$version/simple-wintop-arm64-v\$version.exe",
+                          "bin": [["simple-wintop-arm64-v\$version.exe", "simple-wintop"]]
                       }
                   }
               }

@@ -23,7 +23,7 @@
 
 ## 🖼️ Screenshot
 
-![screenshot](docs/screenshot.png)
+![screenshot](docs/images/screenshot.png)
 
 ## 🚀 Quick Start
 
@@ -86,4 +86,4 @@ GitHub Actions automatically builds **Windows x86_64** and **Windows ARM64** bin
 
 ## 📄 License
 
-📝 MIT — see [LICENSE](LICENSE)
+📝 [MIT](LICENSE)
