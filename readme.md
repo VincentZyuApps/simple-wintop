@@ -35,6 +35,8 @@ simple-wintop
 simple-wintop -t 500
 # 📏 Compact layout — zero outer margins, narrow center gap
 simple-wintop --margin-top 0 --margin-bottom 0 --margin-left 0 --margin-right 0 --margin-center 2
+# 🔍 Debug mode — print terminal & system info on exit
+simple-wintop --debug
 # ℹ️ Show version
 simple-wintop --version
 ```
@@ -49,6 +51,7 @@ simple-wintop --version
 | `--margin-left <n>` | Left margin columns (default: 1) |
 | `--margin-right <n>` | Right margin columns (default: 1) |
 | `--margin-center <n>` | Center gap between left/right columns (default: 5) |
+| `--debug` | Print terminal size, CPU groups, process counts on exit |
 | `--help` | Print help message |
 | `--version` | Print version info |
 

@@ -35,6 +35,8 @@ simple-wintop
 simple-wintop -t 500
 # 📏 紧凑布局 — 零外边距，窄中间间距
 simple-wintop --margin-top 0 --margin-bottom 0 --margin-left 0 --margin-right 0 --margin-center 2
+# 🔍 调试模式 — 退出时打印终端尺寸、CPU 分组、进程数等信息
+simple-wintop --debug
 # ℹ️ 查看版本
 simple-wintop --version
 ```
@@ -49,6 +51,7 @@ simple-wintop --version
 | `--margin-left <n>` | 左侧空白列数（默认：1） |
 | `--margin-right <n>` | 右侧空白列数（默认：1） |
 | `--margin-center <n>` | 左右两栏中间间距（默认：5） |
+| `--debug` | 退出时打印终端尺寸、CPU 分组、进程数等调试信息 |
 | `--help` | 打印帮助信息 |
 | `--version` | 打印版本信息 |
 
