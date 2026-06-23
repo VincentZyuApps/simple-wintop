@@ -2,7 +2,8 @@
 
 # 🖥️ simple-wintop 🦀
 
-[![Windows x64 | ARM64](https://img.shields.io/badge/Windows-x64_|_ARM64-0078D4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/VincentZyuApps/simple-wintop/releases)
+[![Windows x64 | ARM64](https://img.shields.io/static/v1?label=Windows&message=x64%20%7C%20ARM64&color=0078D4&style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTAgMGgxMS4zNzd2MTEuMzcySDB6TTEyLjYyMyAwSDI0djExLjM3MkgxMi42MjN6TTAgMTIuNjIzaDExLjM3N1YyNEgweiBNMTIuNjIzIDEyLjYyM0gyNFYyNEgxMi42MjN6IiBmaWxsPSIjZmZmIi8+PC9zdmc+)](https://github.com/VincentZyuApps/simple-wintop/releases)
+[![Scoop.sh](https://img.shields.io/badge/Scoop.sh-7B4AE2?style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGNpcmNsZSBjeD0iMTIiIGN5PSI4IiByPSI1IiBmaWxsPSIjRUM3MEExIi8+PGNpcmNsZSBjeD0iOCIgY3k9IjEyIiByPSI0LjUiIGZpbGw9IiNFQkYzQTEiLz48Y2lyY2xlIGN4PSIxNiIgY3k9IjEyIiByPSI0LjUiIGZpbGw9IiM4RTZFQzgiLz48cGF0aCBkPSJNMTYuNSA0bC0xLjUtMS41TDExLjUgNmwxLjUgMS41eiIgZmlsbD0iI2ZmZmZmZiIvPjxwYXRoIGQ9Ik0zIDEzaDE4YzAgNC40LTMuNiA4LTggOGgtNGMtNC40IDAtOC0zLjYtOC04eiIgZmlsbD0iIzRGNEI1MyIvPjwvc3ZnPg==)](https://scoop.sh/#/apps?q=%22https%3A%2F%2Fgithub.com%2FVincentZyuApps%2Fscoop-bucket%22&o=false)
 
 > 🌟 A lightweight, real-time **system monitor dashboard** for Windows — inspired by [htop](https://github.com/htop-dev/htop) 🚀
 > Purely the **top meters section** — CPU bars 🧠, Memory & Swap usage 🫧, Tasks counter 🔢, and Uptime ⏱ — all in a beautiful multi‑color TUI 🎨.
@@ -51,14 +52,37 @@ simple-wintop --version
 |-----|--------|
 | `q` / `Q` / `Esc` | 🚪 Quit |
 
+## 📦 Installation
+
+### Windows (Scoop)
+> 📄 [Scoop Bucket](https://github.com/VincentZyuApps/scoop-bucket/blob/main/bucket/simple-wintop.json)
+```powershell
+scoop bucket add vincentzyu https://github.com/VincentZyuApps/scoop-bucket
+scoop update
+scoop install simple-wintop
+```
+
+### 📥 Manual Download
+Download the latest binary from [GitHub Releases](https://github.com/VincentZyuApps/simple-wintop/releases) — choose `simple-wintop-x86_64-v0.x.x.exe` (64-bit) or `simple-wintop-arm64-v0.x.x.exe` (ARM64).
+
 ## 🔧 Build from Source
 
 ```bash
-# 🦀 Build with Cargo
 cargo build --release
 ```
 
 GitHub Actions automatically builds **Windows x86_64** and **Windows ARM64** binaries.
+
+## 📦 Tech Stack
+
+| Package | Version | Description |
+|:---|:---|:---|
+| [![Rust](https://img.shields.io/badge/Rust-stable-CE422B?style=flat-square&logo=rust&logoColor=white)](https://www.rust-lang.org/) | stable | Programming language |
+| [![ratatui](https://img.shields.io/badge/ratatui-0.29-000000?style=flat-square&logo=rust&logoColor=white)](https://github.com/ratatui-org/ratatui) | 0.29 | Terminal UI framework |
+| [![crossterm](https://img.shields.io/badge/crossterm-0.28-000000?style=flat-square&logo=rust&logoColor=white)](https://github.com/crossterm-rs/crossterm) | 0.28 | Cross-platform terminal library |
+| [![sysinfo](https://img.shields.io/badge/sysinfo-0.32-000000?style=flat-square&logo=rust&logoColor=white)](https://github.com/GuillaumeGomez/sysinfo) | 0.32 | System information library |
+| [![clap](https://img.shields.io/badge/clap-4-000000?style=flat-square&logo=rust&logoColor=white)](https://github.com/clap-rs/clap) | 4 | Command-line argument parser |
+| [![unicode-width](https://img.shields.io/badge/unicode--width-0.2-000000?style=flat-square&logo=rust&logoColor=white)](https://github.com/unicode-rs/unicode-width) | 0.2 | Unicode text width |
 
 ## 📄 License
 
