@@ -20,7 +20,7 @@ fn format_uptime(duration: Duration) -> String {
 
 /// Tasks: 446; 414 running
 ///   ^label   ^num  ^status
-pub fn render_tasks(tasks: &TasksData, width: usize) -> Vec<Span<'static>> {
+pub fn render_tasks(tasks: &TasksData, _width: usize) -> Vec<Span<'static>> {
     let mut spans: Vec<Span<'static>> = Vec::new();
 
     spans.push(Span::styled(
@@ -54,7 +54,7 @@ pub fn render_tasks(tasks: &TasksData, width: usize) -> Vec<Span<'static>> {
 
 /// Uptime: 80 days, 12:50:48
 ///   ^label   ^value
-pub fn render_uptime(uptime: &Duration, width: usize) -> Vec<Span<'static>> {
+pub fn render_uptime(uptime: &Duration, _width: usize) -> Vec<Span<'static>> {
     let mut spans: Vec<Span<'static>> = Vec::new();
 
     spans.push(Span::styled(

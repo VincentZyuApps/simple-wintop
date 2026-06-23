@@ -9,6 +9,7 @@ pub struct SystemData {
     pub uptime: Duration,
 }
 
+#[derive(Clone)]
 pub struct CpuData {
     pub name: String,
     pub usage: f64,
